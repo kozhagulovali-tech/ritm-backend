@@ -8,7 +8,7 @@ const router = Router();
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const events = await query(
-      `SELECT id, title, event_date AS "date", event_time AS "time",
+      `SELECT id, title, event_date::text AS "date", event_time AS "time",
               format, location, link, notes
        FROM events ORDER BY event_date, event_time`
     );
@@ -39,9 +39,6 @@ router.post('/', requireAuth, async (req, res, next) => {
 
   let link = req.body.link || '';
 
-  // Если выбран формат "онлайн" и человек попросил создать через Google Meet —
-  // дёргаем Composio. Если он просто вставил готовую ссылку вручную (как в
-  // прототипе), эта ветка не выполняется и работает старое поведение.
   if (format === 'online' && useGoogleMeet) {
     try {
       link = await createGoogleMeetEvent({
@@ -68,7 +65,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     const eventResult = await client.query(
       `INSERT INTO events (title, event_date, event_time, format, location, link, notes, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, title, event_date AS "date", event_time AS "time",
+       RETURNING id, title, event_date::text AS "date", event_time AS "time",
                  format, location, link, notes`,
       [title.trim(), date, time, format || 'offline', location || '', link, notes || '', req.userId]
     );
