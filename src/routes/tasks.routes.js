@@ -8,8 +8,8 @@ const TASK_FIELDS = `
   id, title, description,
   assignee_id AS "assigneeId",
   status, priority,
-  assigned_date AS "assignedDate",
-  due_date AS "dueDate"
+  assigned_date::text AS "assignedDate",
+  due_date::text AS "dueDate"
 `;
 
 router.get('/', requireAuth, async (req, res, next) => {
